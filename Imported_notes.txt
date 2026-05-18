@@ -1,0 +1,59 @@
+
+----------------------Docker commends -------------------------------------------
+1.sudo apt-get purge -y docker-engine docker docker.io docker-ce docker-ce-cli docker-compose-plugin
+2.sudo apt-get autoremove -y --purge docker-engine docker docker.io docker-ce docker-compose-plugin
+3.docker system prune -a --volumes
+
+		
+https://api.github.com/repos/Yaathvik2020/test25/collaborators
+
+
+curl -s -u "<username git> :<GitHub tokens>" https://api.github.com/repos/Yaathvik-InspireInnoTech/shell-scripting-devops/collaborators |jq -r '.[] | select(.permissions.pull == true) | .login'
+
+curl -s -u "<username git> :<GitHub tokens>" https://api.github.com/repos/Yaathvik2020/Test2020/collaborators |jq -r '.[] | select(.permissions.pull == true) | .login'
+
+Yaathvik-InspireInnoTech
+shell-scripting-devops
+/collaborators
+TestManager
+
+
+kubectl patch svc  example-argocd-server --type='json' -p '[{"op":"replace","path":"/spec/type","value":"NodePort"}]'
+
+
+-----------------ARGOCD----------------------
+        kubectl delete -n argocd -f install.yaml
+		https://github.com/argoproj/argo-helm -install
+		Helm:
+		        helm uninstall argocd -n argocd
+				
+				Delete Argo CD applications (if needed): 
+				        argocd app delete <application-name> --cascade
+						PODS:
+						kubectl get pods -n argocd -w
+						SVC:
+						kubectl get svc -n argocd
+						edit SVC:
+						kubectl edit svc argocd-server -n argocd
+						
+		Starting tunnel for service argocd-server.
+		1. minikube service list -n argocd
+		2. minikube service argocd-server -n argocd
+		
+
+-------------------------------------------------------------------------
+		
+		Login argocd:
+		 user:admin
+		 password get from secret:
+		 1.kubectl get secret -n argocd
+		 2. kubectl edit secret argocd-initial-admin-secret -n argocd
+		 3. echo <Password> |base64 --decode (PSS: IbuClNs5oISntQ75)
+		 
+		 argocd app set <APPNAME> --sync-policy automated
+		 
+		 argocd app create guestbook --repo https://github.com/argoproj/argocd-example-apps.git 
+		 --path guestbook --dest-namespace default --dest-server https://kubernetes.default.svc --directory-recurse --sync-policy automated
+
+			
+

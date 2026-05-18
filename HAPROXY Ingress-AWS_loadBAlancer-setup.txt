@@ -1,0 +1,79 @@
+
+1. Create an IAM OIDC Provider
+Your Amazon EKS cluster must have an IAM OIDC identity provider to use IRSA
+
+To install the HAProxy Ingress Controller with IAM Roles for Service Accounts (IRSA) on AWS,
+----------------------------------------------------------------------------------------- 
+you must first create an IAM role with the necessary permissions 
+and then associate it with the controller's Kubernetes Service Account.
+
+1. Create the IAM Policy:
+---------------------------
+You need an IAM policy that allows the controller to manage AWS Elastic Load Balancing (ELB) resources.
+ You can use the standard policy provided by the AWS Load Balancer Controller as a baseline, 
+as it contains the required permissions for provisioning ALBs and NLBs
+
+https://github.com/kubernetes-sigs/aws-load-balancer-controller/blob/main/docs/install/iam_policy.json
+
+aws iam create-policy \
+    --policy-name AWSLoadBalancerControllerIAMPolicy \
+    --policy-document file://iam_policy.json
+	
+
+2. Create the IAM Role for Service Accounts (IRSA)
+---------------------------------------------------
+Use eksctl or the AWS CLI to create an IAM role 
+and link it to the Kubernetes service account used by the HAProxy controller
+
+  eksctl create iamserviceaccount \
+  --name haproxy-ingress-service-account \
+  --namespace haproxy-controller \
+  --cluster kys-cluster \
+  --role-name HAProxyIngressRole \
+  --attach-policy-arn arn:aws:iam::877092167145:policy/AWSLoadBalancerControllerIAMPolicy \
+  --approve
+  
+3. Install via Helm
+helm repo add haproxytech https://haproxytech.github.io/helm-charts
+helm repo update
+
+4. Install with IRSA Annotation:
+If you did not use eksctl to automatically create the service account, 
+you must manually annotate the service account in your values.yaml or via --set
+
+helm install haproxy-kubernetes-ingress haproxytech/kubernetes-ingress \
+  --namespace haproxy-controller  \
+  --set controller.serviceAccount.create=false \
+  --set controller.service.enablePorts.quic=false \
+  --set controller.service.type=LoadBalancer \
+  --set controller.serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=arn:aws:iam::877092167145:role/HAProxyIngressRole
+
+  
+**********************************************************************************************************************************************************************************
+**********************************************************************************************************************************************************************************
+
+
+  
+
+1. sudo apt install haproxy
+   haproxy -v
+
+sudo vi /etc/haproxy/haproxy.cfg
+
+haproxy -c -f /etc/haproxy/haproxy.cfg
+ 
+kubectl patch svc <service-name> -n <namespace> -p '{"spec": {"type": "LoadBalancer"}}'
+
+sudo service haproxy restart
+
+Docker images run on docker with 
+ 
+ docker run -d -e VITE_API_URL='http//:localhost:4001' -p 8080:80  yaathvik20/book-mernproj-frontend:v1
+ 
+ docker inspect <container_name_or_id>
+ 
+ HostnamePath": /var/lib/docker/containers
+ HostnamePath": /var/lib/docker/containers
+ 
+
+ 
