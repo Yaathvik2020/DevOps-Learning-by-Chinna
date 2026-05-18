@@ -1,0 +1,48 @@
+Cluster Rbac creation:
+----------------------
+
+What is RBAC?
+RBAC stands for Role-Based Access Control. It is a method to define who can do what on your Kubernetes cluster.
+
+To do this, RBAC uses four main components:
+
+Role
+ClusterRole
+RoleBinding
+ClusterRoleBinding
+
+Each component plays a key role in defining and controlling access.
+
+Create roles:
+	1. create service account
+	2. role 
+	3.rolebinding
+Generate token for the service account:
+    1.kubectl -n default create token general	
+Create the Kubeconfig files:
+  1.get the certificate-authority-data
+    cat ~/.kube/config
+  2.certificate-authority-data
+  3.role token on the config file --> run the config file for  genral access need mechine
+install kubectl:
+  sudo snap install kubectl --classic
+  export KUBECONFIG=config-gen.yml
+  check access for role
+  
+ Delete a Service Account role/rolebinding: 
+ 1.kubectl get serviceaccounts -n default
+ 2.kubectl delete role <role-name> -n <namespace-name>
+ 3.kubectl delete clusterrole <clusterrole-name>
+ 4.kubectl delete rolebinding <rolebinding-name> -n <namespace>
+ 5.kubectl delete clusterrolebinding edit-binding
+
+
+-----check export env--------
+grep -r "KUBECONFIG" ~/.bash* ~/.profile /etc/environment /etc/profile*
+Open the file in a text editor:
+nano ~/.bashrc
+Delete or comment out the line:
+# export MY_VAR="some_value"
+Save the file
+Apply the changes:
+source ~/.bashrc

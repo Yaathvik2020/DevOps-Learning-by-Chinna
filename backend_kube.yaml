@@ -1,0 +1,42 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: empdata
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: empdata
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: empdata
+        tier: backend
+    spec:
+      containers:
+        - name: app
+          image: yaathvik20/mern_employ_backend:v01.00
+          ports:
+            - containerPort: 5050
+          env:
+          - name: env_db
+            valueFrom:
+              configMapKeyRef:
+                name: env-config
+                key: MONGO_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: empdata
+spec:
+  selector:
+    app: empdata
+    tier: backend
+
+  ports:
+    - port: 5050
+      targetPort: 5050
+  type: ClusterIP

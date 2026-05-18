@@ -1,0 +1,51 @@
+# Use a base image with a Linux distribution (e.g., Ubuntu)
+FROM ubuntu:latest
+
+# Add Docker's official GPG key:
+RUN apt-get update
+RUN apt-get install -y ca-certificates curl
+RUN install -m 0755 -d /etc/apt/keyrings
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+RUN chmod a+r /etc/apt/keyrings/docker.asc
+
+# Set up the stable repository
+RUN echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Install Docker Engine
+RUN apt-get update
+RUN apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Install OpenJDK 21
+RUN apt-get update && \
+    apt install openjdk-21-jdk -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set the JAVA_HOME environment variable
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+
+# Add JAVA_HOME/bin to the PATH for easy access to Java executables
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+
+# Maven setup
+ARG USER_HOME_DIR="/root"
+
+RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
+  && curl -fsSL -o /usr/share/maven/ref/apache-maven-3.9.11-bin.tar.gz  https://dlcdn.apache.org/maven/maven-3/3.9.11/binaries/apache-maven-3.9.11-bin.tar.gz \
+  && tar -xzf /usr/share/maven/ref/apache-maven-3.9.11-bin.tar.gz -C /usr/share/maven --strip-components=1 \
+  && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
+
+ENV MAVEN_HOME=/usr/share/maven
+ENV MAVEN_CONFIG="$USER_HOME_DIR/.m2"
+
+
+WORKDIR /usr/src/app
+
+COPY mvn-entrypoint.sh /usr/local/bin/mvn-entrypoint.sh
+COPY settings-docker.xml /usr/share/maven/ref/
+RUN chmod +x /usr/local/bin/mvn-entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/mvn-entrypoint.sh"]
+CMD ["mvn"]          

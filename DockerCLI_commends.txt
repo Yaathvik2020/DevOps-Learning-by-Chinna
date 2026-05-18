@@ -1,0 +1,147 @@
+Docker Commands:
+-------------------
+Some of the most commonly used docker commands are
+docker images
+-----------------
+Lists docker images on the host machine.
+
+docker build:
+-----------------
+Builds image from Dockerfile.
+
+docker run:
+--------------
+Runs a Docker container.
+1.docker run -it  fg:b /bin/bash  ---> long run container
+2.docker ps --> list the running containers
+3.docker ps -a --> list the exit running containers
+
+There are many arguments which you can pass to this command for example,
+docker run -d -> Run container in background and print container ID docker run -p -> Port mapping
+use docker run --help to look into more arguments.
+Volume:
+-------
+docker volume create <volume_name>
+
+mount the volume with  container system:
+--------------------------------------
+1.docker run -it -v <volume_name>:/data <image_name> /bin/bash
+
+2. Locating Docker Volume Data on the Host (Platform-Specific):
+Linux:
+Docker volumes are typically stored under /var/lib/docker/volumes/<volume_id>/_data.
+
+
+docker ps:
+----------------
+Lists running containers on the host machine.
+docker stop:
+--------------
+Stops running container.
+
+docker start:
+---------------
+Starts a stopped container.
+
+docker rm:
+----------
+Removes a stopped container.
+
+docker rmi:
+-----------
+Removes an image from the host machine.
+
+docker pull:
+--------------
+Downloads an image from the configured registry.
+
+docker push:
+------------
+Uploads an image to the configured registry.
+
+docker exec:
+-------------
+Run a command in a running container.
+
+docker network:
+----------------
+Manage Docker networks such as creating and removing networks, and connecting containers to networks.
+1.docker network rm NETWORK [NETWORK...]
+2.docker network create -d bridge my-bridge-network
+3. docker network ls
+
+docker compose:
+---------------------
+Define and run multi-container applications with Docker
+
+
+Docker Commends:
+***************
+
+sudo groupadd docker
+sudo usermod -aG docker $USER
+
+docker build -t repo/imagename:version .
+docker run -d -e VITE_API_URL='http//chinna.org.com:4001' -p 8080:80  yaathvik20/book-mernproj-frontend:v1
+
+1. Clear Unused (Dangling) Images --> Dangling images are untagged layers that aren't used by any container
+   docker image prune
+   
+2. Remove all unused images (not just dangling ones, but any image not currently associated with a container):
+   docker image prune -a
+   
+3. Clear All Images
+   docker rmi -f $(docker images -aq)
+   
+4. Full System Cleanup
+   docker system prune -a
+   
+5. Prune everything including volumes
+   docker system prune -a --volumes
+   
+******************************************************************************************************************************
+
+1. docker images
+2. docker ps --> check the running container
+3. docker ps -a --> all run & Exit container
+
+4. Stop a single container:  
+   docker stop <container_name_or_id>
+   
+5. Stop all running containers: 
+   docker stop $(docker ps -q)
+   
+6. Forcefully stop (kill) a container: 
+   docker kill <container_name_or_id>
+
+7. Sets a custom timeout (grace period) in seconds before force-killing.
+   docker stop -t 30 my_container
+   
+8. Sends a specific signal to the container instead of the default.
+   docker stop --signal SIGINT my_container
+   
+9. If the container is stopped, you can remove it directly:
+     1. Remove a Specific Container
+	    docker rm <container_id_or_name>
+		
+	 2. Force Remove: Use the -f or --force flag to kill and remove a running container
+	    docker rm -f <container_id_or_name>
+		
+     3. Remove Multiple Containers
+	    docker rm container1 container2 container3
+		docker container prune
+		
+	 4. Remove all containers (stopped and running)
+	    docker rm -f $(docker ps -aq)
+		
+	 5. Remove a container and its associated anonymous volumes
+	    docker rm -v <container_id_or_name>
+	    
+		
+9.  docker inspect <container_name_or_id> --> inspect the container details
+    HostnamePath": /var/lib/docker/containers
+
+10. To "exec" into a running Docker container to get an interactive shell
+    docker exec -it <container_id_or_name> /bin/sh -->Alphine
+	docker exec -it <container_id_or_name> /bin/bash -->linux
+

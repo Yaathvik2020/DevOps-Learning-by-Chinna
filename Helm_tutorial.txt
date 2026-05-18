@@ -1,0 +1,66 @@
+Automatic helm creation: 
+ 1. need to install helmify 
+ 2. run the hemify commend into  multiple  kubernates yaml/ manifist.
+   awk 'FNR==1 && NR!=1 {print "---"}{print}' k8s/*.yml | helmify  bookStoreApp-helm
+ 3. it is create the helm chart for the kubernates manifist
+ 
+Manual Helm creation :
+1.helm create name of  helm
+2.tree name of helm (install sudo apt-get install tree)
+3.Structure: Chart.yaml
+  This file contains all the metadata about our Helm Chart for example
+	apiVersion: v2 #mandatory
+	name: springboot #mandatory
+	description: A Helm chart for Kubernetes
+	type: application
+	version: 0.1.0 #mandatory
+	appVersion: 1.16.0
+Versioning - Each chart should has its own version number and it should follow the Semantic Versioning 2.0 aka SemVer 
+2. But do not get confuse with apiVersion, there are no strict rules for apiVersion.
+
+4.values.yaml
+  This configuration file holds values for the configuration.
+5.Deployment.yaml:
+  the name suggest it is used for deployment purpose
+6.service.yaml:
+  The service.yaml is basically used for exposing our kubernetes  deployment as service.
+7.Run $ helm template:
+  which will set  service.yaml, deployment.yaml with its actual values before running the helm install command
+  
+8. helm lint name of helm 
+lint provided by helm which you could run to identify possible issues forehand.
+
+9. helm install releasename  --debug --dry-run name of helm 
+ -dry-run. Helm is full of such useful utility which allows developer to test its configuration before running the final install command
+ 
+10. helm install releasename  name of helm
+   run the  kubernetes  manifast  
+11. How to see all the releases?
+    helm list -a
+	
+12. Upgrade helm release(helm upgrade releasename .)
+    There is one more feature of Helm Chart which is helm upgrade. It makes it easy for devops to release the new version of application.
+	 Lets take the same myfirstspringboot release and update its replicaCount from 1 to 2
+     But before we need to update the replicaCount. First we need to udpate the version in Chart.yaml from 0.1.0 to 0.1.1
+	 
+13. Rollback Helm release(helm rollback releasename version)
+   In the Step 12 we upgraded the Helm chart release from version 1 to version 2.
+As you can see from the above screenshot we successfully rolled back the release to the previous version. 
+But one interesting thing about Helm is, it still updates the REVISION to 3
+
+14. Delete Helm release
+ helm delete release name
+
+Helm Repository mantains:
+
+
+  	 
+# Add kubernetes-dashboard repository
+helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+# Deploy a Helm Release named "kubernetes-dashboard" using the kubernetes-dashboard chart
+helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard
+
+https://www.youtube.com/watch?v=2dqQcou_MCU&list=PL7iMyoQPMtANm_35XWjkNzDCcsw9vy01b&index=2
+
+
+

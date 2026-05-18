@@ -1,0 +1,39 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: general
+  namespace: default
+  
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  # "general-role" is a name for the ClusterRole
+  name: general-role
+rules:
+- apiGroups: [""] 
+  resources: ["pods","services","endpoints","namespaces"] 
+  verbs: ["get","list","watch"] 
+- apiGroups: ["apps","extensions"] 
+  resources: ["deployments","replicasets","daemonsets","statefulsets"] 
+  verbs: ["get","list","watch"] 
+- apiGroups: ["batch"] 
+  resources: ["jobs","cronjobs"] 
+  verbs: ["get","list","watch"] 
+  
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: general-cluster-rolebinding
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: general 
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: general-role 
+  apiGroup: rbac.authorization.k8s.io
+

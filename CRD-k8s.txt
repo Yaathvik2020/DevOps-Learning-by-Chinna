@@ -1,0 +1,112 @@
+
+What is a Custom Resource ?
+A Custom Resource (CR) is a user-defined object in a system 
+like Kubernetes or AWS CloudFormation, extending the API to manage application-specific or domain-specific information
+
+What is a Custom Resource Definition ?
+A Custom Resource Definition (CRD) in Kubernetes is a mechanism that allows users to extend the Kubernetes API by defining 
+their own custom resource types. These custom resources behave like built-in Kubernetes objects such as Pods, Deployments, or Services, 
+but they are user-defined and specific to an application's or system's needs. 
+
+Why do you need a Custom Resource in Kubernetes ?
+
+Extending Kubernetes Functionality:
+----------------------------------
+Custom Resources enable the definition of new API objects tailored to specific application or infrastructure needs.
+ This extends Kubernetes' capabilities beyond its built-in resources like Pods, Deployments, or Services. 
+ For example, an organization might define a "Database" custom resource to represent and manage database instances within the cluster.
+ 
+Building Operators:
+-------------------
+Custom Resources are fundamental for implementing the Operator pattern. 
+An Operator is an application-specific controller that extends the Kubernetes API to create, configure, and manage instances of complex applications. The Custom Resource acts as the declarative interface for users to interact with the Operator, defining the desired state of their application. The Operator's controller then watches for changes to these Custom Resources and takes action to reconcile the actual state with the desired state.
+
+Encapsulating Complex Logic:
+----------------------------
+Instead of manually orchestrating multiple Kubernetes primitives (e.g., Deployments, Services, ConfigMaps) to deploy a complex application, 
+a Custom Resource can encapsulate this entire process. Users declare the desired state of their application through a single Custom Resource,
+ and the associated controller handles the underlying complexities.
+ 
+Integrating External Systems:
+-----------------------------
+Custom Resources can be used to represent and manage external resources or services within the Kubernetes ecosystem. 
+For instance, a Custom Resource could represent an AWS S3 bucket or a cloud database instance, 
+allowing them to be managed declaratively alongside other Kubernetes resources.
+
+What is a Custom Controller ?
+
+A custom controller in Kubernetes is a program or piece of code that extends the functionality of Kubernetes by implementing custom control loops. 
+While Kubernetes comes with built-in controllers for managing native resources like Pods, Deployments, and Services, 
+custom controllers allow users to define their own logic for managing specific resources,
+ whether they are native Kubernetes resources or Custom Resources (CRs) defined by Custom Resource Definitions (CRDs).
+
+Key aspects of custom controllers:
+---------------
+Control Loop:
+--------------
+Like all Kubernetes controllers, custom controllers operate on the principle of a control loop.
+ They continuously monitor the state of specific resources within the Kubernetes cluster 
+ and work to reconcile the current state with a desired state, as defined in the resource's specification.
+ 
+Extending Kubernetes:
+---------------------
+Custom controllers enable users to extend the Kubernetes API and introduce domain-specific logic. 
+This allows for automation and management of applications and infrastructure in a way that is tailored to specific needs.
+
+Interaction with Resources:
+--------------------------
+Custom controllers can interact with both native Kubernetes resources (e.g., creating Services and Ingresses based on a Deployment) 
+and Custom Resources (e.g., managing a database instance defined by a CRD).
+
+Reconciliation:
+---------------
+When a change in a monitored resource is detected (e.g., a new resource is created, an existing one is updated or deleted), 
+the custom controller's reconciliation logic is triggered. 
+This logic determines the necessary actions to bring the current state in line with the desired state.
+
+Operators:
+------------
+Custom controllers are a fundamental component of Kubernetes Operators. 
+An Operator packages an application and its operational knowledge into a single unit, allowing for automated deployment, scaling, 
+and management of complex applications within Kubernetes using custom controllers to handle the application-specific logic.
+
+Comparison with Custom Resources:?
+----------------------------------
+While native resources cover a wide range of use cases, 
+Kubernetes is highly extensible through Custom Resources (CRs) and Custom Resource Definitions (CRDs). 
+CRDs allow users to define their own custom API objects, extending Kubernetes' capabilities to manage application-specific 
+or domain-specific resources.
+
+Native Resources:
+Are core building blocks provided by Kubernetes, understood and managed directly by the Kubernetes control plane. 
+They are fundamental to the platform's operation.
+
+
+
+Native Operation by kubernates:
+--------------------------------
+Kubernetes comes with a set of built-in, or "native," resources that form the foundation for deploying and managing applications.
+These native resources include:
+Pods: 
+The smallest deployable units in Kubernetes, encapsulating one or more containers, storage resources, 
+a unique network IP, and options that govern how the containers should run.
+
+Deployments: 
+Provide declarative updates for Pods and ReplicaSets, allowing for rollouts and rollbacks of application versions.
+
+ReplicaSets: 
+Ensure a specified number of Pod replicas are running at all times.
+
+Services: 
+Abstract network access to a set of Pods, providing a stable endpoint for communication.
+
+ConfigMaps & Secrets: 
+Store configuration data and sensitive information (like passwords or API keys) separately from application code.
+
+Volumes: 
+Provide persistent storage for Pods.
+
+Namespaces: 
+Allow for resource isolation and organization within a cluster.
+
+

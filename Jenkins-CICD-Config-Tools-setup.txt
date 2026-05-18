@@ -1,0 +1,202 @@
+Jenkins CICD Configure Steps:
+*************************************
+Nodjs project: need below 
+-----------------------------
+1.nodejs plugin on Jenkins
+2.To install libatomic on Ubuntu (often required for Node.js, Dropbox, or GCC), install the libatomic1 package using APT. Run sudo apt update followed by sudo apt install libatomic1. 
+
+1.SonarQube for automate the code analysis:
+**********************************************
+  Install SonarQube in the ubuntu and configure sonar setup in the Jenkins
+  1.SonarQube Scanner plugin
+  2.sonarQube token configure with Jenkins credential: 
+    1. administration from sonarqube --> create token & Manage Jenkins --> credential add token
+  3.jenkins --system--> sonarqube--> configure sonar setup
+    1. name -- sonar-server ,url & token of sonar
+  4.jenkins --Tools--> sonarqube--> sonarscanner 
+    name-- sonar-server
+  5.sonarQube --> create webhook to quality gate of code :
+    webhook--> name --> Jenkins & URL --> http://<ip>:8080/sonarqube-webhook
+  6. create project on the sonarqube
+
+  another way:
+  2.sonarQube token configure with Jenkins credential part
+  3.configure /sonqube url details --> system configure or  configure the pipeline script
+  4.install sonarQube scanner
+
+
+2.Trivy Tools(this is used for file scanning & image scanning , and also ECR image scanning)
+*****************************************************************************************
+  sudo apt-get install wget gnupg
+  wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+  echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+  sudo apt-get update
+  sudo apt-get install trivy
+  trivy --version
+
+3.kubectl commmandline install:
+*******************************
+  install the kubectl from official website  and config  k8s cluster
+
+  1.cat the admin.conf from k8s cluster
+    sudo cat /etc/kubernetes/admin.conf --> for short config --> copy the admin.conf --> create .kube/config file  from workstation--> paste admin.conf-->folow 7 & 8 steps 
+  2.save this admin.conf into your workstation as kubeadm-config.yaml
+  3.Take a backup of the existing kubeconfig
+    cp ~/.kube/config ~/.kube/config.bak
+  4.Merge the default config with kubeadm-config.yaml and export it to KUBECONFIG variable
+    export KUBECONFIG=~/.kube/config:/path/to/kubeadm-config.yaml
+  5.Merger the configs to a file
+    kubectl config view --flatten > ~/.kube/merged_config.yaml
+  6.Replace the old config with the new config
+    mv ~/.kube/merged_config.yaml ~/.kube/config
+  7.List all the contexts 
+    kubectl config get-contexts -o name
+  8.Set the current context to the kubeadm cluster.
+    kubectl config use-context <cluster-name-here>
+  
+4.Slack install and set up:
+***************************
+  1.create slack account 
+  2. add jenkins app --> https://api.slack.com/apps --> manifest.yaml
+----------------------------------
+display_information:
+  name: Jenkins CI
+  description: Jenkins build notifications
+  background_color: "#2f3136"
+features:
+  bot_user:
+    display_name: Jenkins
+    always_online: true
+oauth_config:
+  scopes:
+    bot:
+      - chat:write
+      - chat:write.public
+      - channels:read
+      - groups:read
+      - im:read
+      - mpim:read
+      - files:write
+      - users:read
+settings:
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false
+------------------------------------------------------------------------------------------
+  3.install app--> install Jenkins app into your slack workstation & note oauth tokens --> 
+    3.1 invite the Jenkins app into you slack channels --?/invite @jenkins in the message
+  4.Slack Notification Pipeline -->plugin  in Jenkins
+  5.Intergrate the slack with Jenkins :
+    Jenkins --> manage Jenkins-->system--> slack 
+    1. workstation -> name
+    2.credential-->  https://api.slack.com/apps -->installapp-->copy token of Bot User OAuth Token into secret--> ID- slack-token
+    3.chennal--> add the slack channel
+
+6.OWASP Dependency-Check 
+************************ 
+ 1.OWASP Dependency-Check -->plugin  in Jenkins
+ 2.Manage Jenkins >  Tool> scroll to Dependency-Check, click Add Dependency Check
+    name--> owasp-dp-check & select "Install automatically" --> install from GitHub
+ 
+5.Docker config:
+*****************
+  install docker on ubuntu and add below plugin in Jenkins
+  1.docker
+  2.docker commons
+  3.Docker Pipeline -->plugin  in Jenkins
+  4.Docker slave install node host machine
+  --------------------------------------
+  Jenkins credential --> set the docker user & set docker token as password
+
+  Give the grand permission:
+  -------------------------
+  sudo su - 
+  usermod -aG docker jenkins
+  usermod -aG docker ubuntu
+  systemctl restart docker
+  chmod 777 /var/run/docker.sock
+
+6.GitHup configure on the jenkins
+**********************************
+  1. Jenkins credential --> set the GitHub token
+
+
+7.install argocd on the kubeadm/manage host cluster
+   option:1 
+   https://argo-cd.readthedocs.io/en/stable/getting_started/
+   kubectl create namespace argocd
+   kubectl apply -n argocd --server-side --force-conflicts -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+   kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
+
+   kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+   kubectl rollout restart deployment argocd-repo-server -n argocd
+   kubectl rollout restart statefulset argocd-application-controller -n argocd
+
+  
+========================================*****************========finishedpipeline================********************======
+
+Jenkins slowness:
+-----------------
+What is the root cause of the issue?
+========================================
+If you are using AWS free tier account and creating EC2 instance without using Elastic IP. 
+If you are stopping EC2 instance and restarting EC2, this would have new IP after every restart, 
+Jenkins was trying to use old IP address when you are trying to start Jenkins. 
+Due to this issue, Jenkins will be very slow.
+
+
+Pre-requisites:
+---------------------
+Jenkins is setup in AWS cloud using free-tier account.
+There are two ways you can fix this issue:
+
+First option using command line
+--------------------------------
+1.cd /var/lib/jenkins/
+
+Modify jenkins.model.JenkinsLocationConfiguration.xml file by executing below command:
+
+2.sudo vim jenkins.model.JenkinsLocationConfiguration.xml
+
+Make sure you provide Jenkins current URL in below location and restart Jenkins.
+
+3.sudo service jenkins restart
+
+2.Second option is using Jenkins UI
+----------------------------------------------
+1.Change public URL under Manage Jenkins->System
+2.Change Jenkins URL to current Jenkins URL:
+-------------------pipeline---------------------
+pipeline {
+    agent any
+
+    stages {
+        stage('Hello') {
+            steps {
+                git branch: 'main' , url:'https://github.com/Yaathvik2020/Jenkins-Zero-To-Hero.git'
+                sh 'ls'
+            }
+        
+        }
+           stage ("udate"){
+                 environment {
+                     GIT_REPO_NAME = "Jenkins-Zero-To-Hero"
+                     GIT_USER_NAME = "Yaathvik2020"
+                     }
+               steps{
+                   withCredentials([string(credentialsId: 'github', variable: 'TOKEN')]){
+                    sh  ''' 
+                    git config --global user.email "chinnayaathvik@gmail.com"
+                    git config --global user.name "Yaathvik2020"
+                    BUILD_NUMBER=${BUILD_NUMBER}
+                    sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                    git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                    git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                    git push https://${TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+                    '''
+                   }
+               }
+           }
+    }
+}

@@ -1,0 +1,131 @@
+how to install ebs csi driver in kubeadm cluster
+
+1.helm v3 install
+
+prerequisite before add EBS
+---------------------------
+1. Verify Cluster DNS Health
+    The error dial tcp: lookup... on 10.96.0.10:53: i/o timeout means the pod cannot communicate with the CoreDNS service.
+    kubectl get svc kube-dns -n kube-system
+   
+ Add the security groups for ec2 --> inbound rule--> all terrific map
+
+Step 1(option): Install  the EBS CSI Driver 
+--------------------------------------------------------
+1. Create IAM Policy and Role 
+Create an IAM policy with the required permissions for the EBS CSI driver and attach it to an IAM role. 
+You can use the official policy from Amazon EBS CSI Driver documentation.
+
+2. Configure Service Account (IRSA) 
+
+kubectl apply -f role-ebs.yml
+------------------ 
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ebs-csi-controller-sa
+  namespace: kube-system
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::877092167145:role/ebs-csi-role
+
+kubectl get sa -n kube-system
+
+3. Install the Driver via Helm 
+
+helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+helm repo update
+
+helm upgrade --install aws-ebs-csi-driver \
+    --namespace kube-system \
+    aws-ebs-csi-driver/aws-ebs-csi-driver \
+    --set controller.serviceAccount.create=false \
+    --set controller.serviceAccount.name=ebs-csi-controller-sa
+
+4. Verify Installation
+
+kubectl get pods -n kube-system -l app.kubernetes.io/name=aws-ebs-csi-driver
+
+	
+Step 3: Create a StorageClass  provisioner: ebs.csi.aws.com
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-gp3-sc
+  annotations:
+    storageclass.kubernetes.io/is-default-class: 'true'
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  type: gp3 
+reclaimPolicy: Delete 
+allowVolumeExpansion: true
+
+
+Step 1: Configure IAM Permissions 
+
+Create an IAM Policy that grants the necessary permissions. 
+--------------------------------------------------------------
+AWS provides a managed policy AmazonEBSCSIDriverPolicy that you can use. 
+  1.1 Create role with AmazonEBSCSIDriverPolicy policy
+  1.2 Attach this policy to the IAM role used by your worker nodes 
+
+Step Option:1: Deploy the EBS CSI Driver
+------------------------------
+ 1.Helm.sh --> charts -->aws-ebs-csi-driver --> install
+  1.0 Delete the existing  helm  repo
+      helm search repo
+      helm repo remove
+      helm delete aws-ebs-csi-driver -n kube-system
+
+  Release Stuck or Manually Deleted: If resources were manually deleted via kubectl, Helm's internal state (stored as Secrets or ConfigMaps)
+  might still exist but the release itself is considered "not found".
+
+      helm uninstall aws-ebs-csi-driver --ignore-not-found
+  
+1.1 run the is helm repo
+
+  helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver/
+  helm repo update
+  helm pull  aws-ebs-csi-driver/aws-ebs-csi-driver --untar
+  helm install aws-ebs-csi-driver -n kube-system aws-ebs-csi-driver
+
+ provisioner check:
+  1.kubectl api-resources
+  2.kubectl get csidrivers
+  3.kubectl get csidrivers ebs.csi.aws.com -oyaml
+
+Step 3: Create a StorageClass  provisioner: ebs.csi.aws.com
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-sc
+  annotations:
+    storageclass.kubernetes.io/is-default-class: 'true'
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  type: gp3 
+reclaimPolicy: Delete 
+allowVolumeExpansion: true
+ 
+Application deploy check csidrivers:
+-----------------------------------
+helm install bookstor-helm -n three-tier  --generate-name
+
+************************************************************************************************************************************************************
+
+
+
+-------------------------To remove the Amazon EBS CSI driver--------------------------
+
+helm list -n kube-system
+
+helm uninstall <RELEASE_NAME> -n <NAMESPACE>
+
+Verify Removal:
+
+kubectl get pods -n kube-system -l "app.kubernetes.io/name=aws-ebs-csi-driver"
+
+

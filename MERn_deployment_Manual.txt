@@ -1,0 +1,75 @@
+Mannually deploy MERn stack project with SSL/TLS cert:
+--------------------------------------------------------
+
+1.Frondend deploy:
+-----------------------
+.env file for  back ulr :
+-------------------------
+VITE_BACKEND_URL=http://yaathvikksy.zapto.org/4000 if not DNS  ip  & port
+VITE_BACKEND_URL=http://ip/4000 
+1.npm install
+2.npm run build / npm run dev --> without wiebserv /nginx
+
+copy dist folder to nginx var/www/folder:
+----------------------------------------
+1.sudo mkdir -p /var/www/frontend
+2.sudo cp -r dist/* /var/www/frontend
+
+DB Mango install:
+--------------------
+search web
+
+3.Backend deploy:
+-----------------------
+.env file for  back ulr :
+]MONGODB_URI=mongodb://localhost:27017/
+PORT=4000
+------------------
+1.npm install
+2.npm run start / PM2 install to continue run on the server
+
+
+
+nginx install & Location config:
+-------------------------
+ sudo apt update
+ suso apt nginx -y
+ 
+1.sudo vim /etc/nginx/sites-available/default
+
+server_name yaathvikksy.zapto.org www.yaathvikksy.zapto.org;
+location /api/ {
+        proxy_pass http://localhost:4000;
+		proxy_http_version 1.1;
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection 'upgrade';
+		proxy_set_header Host $host;
+		Proxy_cache_bypass $http_upgrade;
+}
+location / {
+    root /var/www/frontend;
+    index index.html;
+	try_files $uri /index.html;
+}
+
+2.sudo nginx -t  ---> verify the config update
+3.sudo nginx -s reload --> ngix server reload
+
+setup firwall:
+--------------
+sudo apt install ufw
+
+sudo ufw allow ssh
+sudo ufw allow http
+sudo ufw allow https
+sudo ufw enable
+sudo ufw status
+sudo ufw status verbose
+
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow 22/tcp
+
+----------------enable SSL certificate----
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx

@@ -1,0 +1,71 @@
+
+
+we used kubernetes services and service was offering me a lot of
+good things and  it provide the service Discovery mechanism on kubernetes so it
+is solving this problem it was also doing a load balancing and how the load balancing  to the pods  using  cube shark utility
+and it was also exposing the applications to external world then why you need a tool like Ingress 
+or why you need a concept like Ingress and what problem is it
+solving  so before 2015 uh December I guess or November so that was before
+kubernetes version release 1.1 Ingress was not even there
+people were using kubernetes without Ingress , that means people were using kubernetes with just service
+people used to create a deployment which would create a pod  and
+additionally it will  get Auto healing and auto scaling  features then you will create a service on top of it
+so that you can expose your application within your kubernetes cluster or outside the kubernetes cluster 
+using the load balancer that is using the load balancer mode of your service but there are some practical problems 
+which people realized after using kubernetes okay so once people started using kubernetes so obviously 
+these users who migrated to kubernetes were migrating from the
+
+Legacy systems like like people used to have virtual machines or physical servers on top of that they used to
+ratio based load balancing
+sticky sessions that-one request is going to pod one then all the requests of that specific user have to go to pod one only 
+whitelisting -->specific customers to access the application they can do blacklisting that means to say okay so these
+
+they were very happy that kubernetes was offering you Auto healing Auto scaling automatic service Discovery uh exposing
+ later they realized that service was providing load balancing mechanism but the load balancing mechanism the service was providing is a simple round
+Robin load balancing what is round robin if you are doing 10 requests the 
+Cube proxy is updating your IP table rules what it does is it will send file
+this is a very simple load balancing because people were coming from virtual machines and they used to get all of
+these features against what they are getting in kubernetes is a very simple round robin they are not getting all of
+these features and these are only list of features I gave you the commercial or the Enterprise load balancers they can
+offer hundreds of features  so you can simply read and you will see that you can do a web application firewall
+they said that okay a service was doing few things but still we are not happy and  they have noticed 
+this is problem number one and the problem number two is you can expose your
+applications to external World using load balancer mode service,you  have some thousands of services , for each of the service when you create the
+service as type load balancer mode then  cloud provider was charging
+them for each and every IP address because these are static and public IP
+
+how Ingress is solving this problem what is the problem number one
+
+Enterprise and
+ratio, sticky
+TLS based load balancing that is secure load balancing https based
+
+kubernetes was not offering all of this Enterprise level capabilities and the second point is
+important interview question:
+---------------------
+difference between load balancer type service and traditional
+is the load balancing type service was good but it was missing all
+of these capabilities and also you will say that the cloud provider will charge you for each and every load balancer
+service type like if there are thousands of services you will be getting charged for thousands of load balancer static public IP addresses
+
+what is ingress or why Ingress has to be created what is difference between load balancer service
+
+
+Kubelet  will deploy your pod onto
+one of the worker nodes and API server will notify cubelet using
+scheduler that  a pod is created and cubelet will deploy the pod
+service yaml manifest  Q proxy will update the IP table
+rules so for every resource that you are creating in kubernetes there is a component which is watching for that
+Ingress resource 
+ nginx 
+ F5 
+ traffic
+Ambassador
+ HF proxy 
+ so kubernetes said that it is technically impossible I cannot do it so what I'll do is I'll come up with the architecture 
+ and the architecture is user will create Ingress resource 
+load balancing companies like nginx
+F5 or any other load balancing companies they will write their own Ingress
+controllers and they will place these Ingress controllers on GitHub and they will
+provide the steps on how to install this Ingress controllers using Helm charts 
+it can be a load balancer plus API Gateway as well API Gateway offers you some additional

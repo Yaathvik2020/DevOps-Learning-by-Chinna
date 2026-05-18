@@ -1,0 +1,23 @@
+what is kubernetes rbac and why is it
+
+rbac is directly related to security when something is related to security
+that it is very important  to understand the concept of rbac how to create a service account or how
+to create role and how to create role binding 
+
+kubernetes  RBAC can be broadly divided into two parts ,the first part can be users and the second thing can be your service
+account. for  kubernetes in organizations  kubernetes clusters maintained by  devops Engineers or
+kubernetes administrators and thier  primary responsibility would be to
+Define access if there is a development team if there is a QE team okay so how do you
+define what access should developers have onto this cluster and what access Qa if someone comes and
+deletes something related to etcd then it becomes very difficult for your 
+team to get back the original state of these  things so effectively how you can solve this problem is by defining
+rbac that means to say role based Access Control  so what is role based
+Access Control depending upon the role of the person  to manage the access to users in your kubernetes cluster that is one part ofRBAC 
+and the second part is how you are going to do deal with the service account  pod is a malicious pod and what this pod is doing is it is deleting 
+some content related to API server or  accidentally it is removing some important files on your 
+system so how do you restrict this
+
+role binding: 
+
+Service Account and Role must talk to each other so that the limited desired permissions is granted to the users. 
+Therefore this can be achieved by ROLE BINDING.

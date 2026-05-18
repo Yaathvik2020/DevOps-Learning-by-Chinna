@@ -1,0 +1,43 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: empdatafront
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: empdatafront
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: empdatafront
+        tier: frontend
+    spec:
+      containers:
+        - name: app
+          image: yaathvik20/mern_employ_frontend:v01.00
+          ports:
+            - containerPort: 5173
+          env:
+          - name: env_url
+            valueFrom:
+              configMapKeyRef:
+                name: env-config
+                key: VITE_BACKEND_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: empdatafront
+spec:
+  selector:
+    app: empdatafront
+    tier: frontend
+
+  ports:
+    - port: 80
+      targetPort: 5173
+      nodePort: 30005
+  type: NodePort
